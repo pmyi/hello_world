@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+  <head>
+    <title>虾皮老板激励你</title>
+    <link rel="stylesheet" href="static/style.css">
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector("form");
+        const petTypeInput = document.getElementById("pet_type");
+        const resultDiv = document.querySelector(".result");
+        const thinkingDiv = document.getElementById("thinking");
+
+        function showThinkingMessage() {
+          const baseMessage = "老板思考中";
+          let dots = "";
+          const maxDots = 3;
+          const updateMessage = () => {
+            dots = dots.length < maxDots ? dots + "." : "";
+            thinkingDiv.textContent = baseMessage + dots;
+          };
+
+          updateMessage();
+          return setInterval(updateMessage, 500);
+        }
+
+        form.addEventListener("submit", async function (event) {
+          event.preventDefault();
+          thinkingDiv.style.display = "block";
+          const thinkingTimer = showThinkingMessage();
+
+          const response = await fetch("/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ pet_type: petTypeInput.value }),
+          });
+
+          const data = await response.json();
+          const petName = data.pet_name;
+
+          resultDiv.innerHTML = `老板：${petName}`;
+          clearInterval(thinkingTimer);
+          thinkingDiv.style.display = "none";
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>虾皮老板激励你</h1>
+      <form>
+        <label for="pet_type">请输入今日心情：</label>
+        <input type="text" id="pet_type" name="pet_type" required>
+        <button type="submit">听老板说</button>
+      </form>
+      <div class="result"></div>
+      <div id="thinking" style="display: none;"></div>
+    </div>
+  </body>
+</html>
